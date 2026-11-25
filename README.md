@@ -66,5 +66,4 @@ integrante; merge com "Create a merge commit"; sem `push --force` na `main`.
 
 ## Declaração de uso de IA
 Uso de IA como apoio (a detalhar no relatório): geração do esqueleto inicial do
-projeto, dos TADs da Etapa 1, do menu e dos testes. Todo o código foi revisado
-e deve ser explicado por qualquer integrante na defesa.
+projeto, dos TADs da Etapa 1, do menu e dos testes.
