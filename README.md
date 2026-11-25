@@ -1,4 +1,4 @@
-# Navegador de Rotas Urbanas
+# Navegador de Rotas Urbanas - Estrutura de Dados
 
 Trabalho Final de Estrutura de Dados (UNI-CET). Aplicativo em Python 3 para uma
 cidade **fictícia** (Nova Aurora): cadastro de locais, busca por nome com
