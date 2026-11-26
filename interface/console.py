@@ -8,8 +8,9 @@ MENU = """
  3) Alterar local           10) Histórico de rotas (anterior/próxima)
  4) Excluir local           11) Favoritos
  5) Autocompletar nome      12) Alcançáveis (DFS) e isolados
- 6) Conectar locais          v) Voltar (pilha de telas)
- 7) Calcular rota (BFS)      0) Sair
+ 6) Conectar locais         13) Listar ordenado (nome/avaliação/distância)
+ 7) Calcular rota (BFS)      v) Voltar (pilha de telas)
+                             0) Sair
 """
 
 
@@ -158,6 +159,24 @@ def _alcance(mapa) -> None:
     print(f"Locais isolados: {isolados}")
 
 
+def _listar_ordenado(mapa) -> None:
+    criterio = _ler("Critério [nome/avaliacao/distancia]: ").lower()
+    algoritmo = _ler("Algoritmo [bubble/selection/insertion/quick/merge] (Enter = merge): ").lower() or "merge"
+    referencia = None
+    if criterio == "distancia":
+        referencia = _pedir_local(mapa, "Local de referência: ")
+        if referencia is None:
+            return
+    try:
+        ordenados = mapa.locais_ordenados(criterio, algoritmo,
+                                          None if referencia is None else referencia.id)
+    except ValueError as erro:
+        print(f"Algoritmo inválido: {erro}")
+        return
+    for local in ordenados:
+        print(f"[{local.id}] {local.nome} | {local.bairro} | {local.avaliacao}")
+
+
 def _voltar(mapa) -> None:
     if mapa.navegacao.pode_voltar():
         print(f"Voltando para: {mapa.navegacao.voltar()}")
@@ -173,7 +192,8 @@ def executar(mapa) -> None:
              ("5", _autocompletar, "Busca"), ("6", _conectar, "Conexões"),
              ("7", _rota, "Rota"), ("8", _solicitar, "Solicitar rota"),
              ("9", _atender, "Atender rota"), ("10", _historico, "Histórico"),
-             ("11", _favoritos, "Favoritos"), ("12", _alcance, "Alcance"))
+             ("11", _favoritos, "Favoritos"), ("12", _alcance, "Alcance"),
+             ("13", _listar_ordenado, "Ordenação"))
     while True:
         print(MENU)
         try:

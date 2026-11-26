@@ -103,3 +103,35 @@ class TestMapa(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestMapaOrdenacao(unittest.TestCase):
+    def setUp(self):
+        self.m = criar_mapa_exemplo()
+
+    def test_ordenar_nao_altera_cadastro_original(self):
+        antes = [l.nome for l in self.m.locais()]
+        self.m.locais_ordenados("nome", "quick")
+        self.assertEqual([l.nome for l in self.m.locais()], antes)
+
+    def test_criterios_e_algoritmos(self):
+        for algoritmo in ("bubble", "selection", "insertion", "quick", "merge"):
+            nomes = [l.nome for l in self.m.locais_ordenados("nome", algoritmo)]
+            self.assertEqual(nomes[0], "Biblioteca Aurora")
+            self.assertEqual(nomes[-1], "Universidade Nova")
+            notas = [l.avaliacao for l in self.m.locais_ordenados("avaliacao", algoritmo)]
+            self.assertEqual(notas, sorted(notas, reverse=True))
+
+    def test_distancia(self):
+        origem = self.m.buscar_por_nome("Praça Central").id
+        ordenados = [l.nome for l in self.m.locais_ordenados("distancia", "merge", origem)]
+        self.assertEqual(ordenados[0], "Praça Central")
+        self.assertEqual(ordenados[-1], "Farol Distante")      # inalcançável por último
+
+    def test_pre_condicoes(self):
+        with self.assertRaises(PreCondicaoError):
+            self.m.locais_ordenados("distancia")                # sem referência
+        with self.assertRaises(PreCondicaoError):
+            self.m.locais_ordenados("cor")
+        with self.assertRaises(ValueError):
+            self.m.locais_ordenados("nome", "heap")

@@ -9,10 +9,12 @@ from dominio.historico import Historico
 from dominio.local import Local, Rota
 from dominio.navegacao import Navegacao
 from tads.arvore_bst import ArvoreBST
+from algoritmos.ordenacao import obter_algoritmo
 from tads.excecoes import (ChaveDuplicadaError, ElementoInexistenteError,
                            PreCondicaoError)
 from tads.grafo import Grafo
 from tads.lista_encadeada import ListaEncadeada
+from tads.lista_estatica import ListaEstatica
 
 
 def _chave(nome: str) -> str:
@@ -143,6 +145,45 @@ class MapaUrbano:
     def isolados(self) -> ListaEncadeada:
         """Locais sem nenhuma conexão."""
         return self._para_locais(self._grafo.isolados())
+
+    def locais_ordenados(self, criterio: str = "nome", algoritmo: str = "merge",
+                         id_referencia=None) -> ListaEstatica:
+        """Cópia do cadastro ordenada, sem alterar a ordem original.
+
+        criterio: "nome" (alfabético), "avaliacao" (maior primeiro, desempate
+        por nome) ou "distancia" (menor primeiro, desempate por nome).
+        A distância é a da rota com menos paradas (BFS) a partir de
+        `id_referencia`; locais inalcançáveis ficam por último.
+        algoritmo: "bubble", "selection", "insertion", "quick" ou "merge".
+        Pré: criterio e algoritmo válidos; local de referência existe
+        (obrigatório para "distancia").
+        """
+        ordenar = obter_algoritmo(algoritmo)
+        copia = ListaEstatica(self._grafo.capacidade)
+        for local in self._cadastro.listar():
+            copia.inserir_fim(local)
+        if criterio == "nome":
+            def chave(l):
+                return l.nome.lower()
+        elif criterio == "avaliacao":
+            def chave(l):
+                return (-l.avaliacao, l.nome.lower())
+        elif criterio == "distancia":
+            if id_referencia is None:
+                raise PreCondicaoError("distância exige um local de referência")
+            self._exigir_local(id_referencia)
+            distancias = ListaEstatica.preenchida(self._grafo.capacidade, float("inf"))
+            for local in copia:
+                caminho = self._grafo.menor_caminho_paradas(id_referencia, local.id)
+                if caminho is not None:
+                    distancias[local.id] = self._grafo.custo_caminho(caminho)
+
+            def chave(l):
+                return (distancias[l.id], l.nome.lower())
+        else:
+            raise PreCondicaoError(f"critério desconhecido: {criterio!r}")
+        ordenar(copia, chave)
+        return copia
 
     # --- internos ---------------------------------------------------------
     def _para_locais(self, ids) -> ListaEncadeada:

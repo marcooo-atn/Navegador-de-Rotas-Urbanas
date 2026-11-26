@@ -97,6 +97,26 @@ class ListaEstatica:
                 return i
         return -1
 
+    def copiar(self) -> "ListaEstatica":
+        """Cópia rasa (mesma capacidade e mesmas referências aos elementos).
+
+        Pós: a original não é alterada; ordenar a cópia não muda a original.
+        """
+        nova = ListaEstatica(self._capacidade)
+        for i in range(self._tamanho):
+            nova._vetor[i] = self._vetor[i]
+        nova._tamanho = self._tamanho
+        return nova
+
+    def como_vetor(self):
+        """Devolve o vetor interno (sem cópia), para algoritmos in-place.
+
+        Uso restrito aos algoritmos de ordenação, que precisam de acesso
+        direto por índice sem o custo de validar cada leitura. Só as
+        posições 0 .. len(lista)-1 são válidas e o vetor nunca deve crescer.
+        """
+        return self._vetor
+
     def _validar_pos(self, pos: int) -> None:
         if not 0 <= pos < self._tamanho:
             raise PosicaoInvalidaError(f"posição {pos} inválida")
